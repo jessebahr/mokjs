@@ -1,0 +1,23 @@
+{
+  "author": "Jesse Bahr",
+  "name": "mokjs",
+  "description": "A mocking library made by FOR JavaScript",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jessebahr/mokjs.git"
+  },
+  "main": "mok.js",
+  "dependencies": {},
+  "devDependencies": {
+	  "mocha": "1.7.x"
+  },
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+
+  "scripts": {
+    "test": "node_modules/mocha/bin/mocha -R spec --recursive test/"
+  }
+}
