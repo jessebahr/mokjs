@@ -62,3 +62,12 @@ To call the real method, just set callRealMethod to true:
 	funcMock(); //sets called to true
 	funcMock.calls; //still increments the number of calls like a regular mock
 ```
+
+To do
+====
+* Add a way to specify a return value
+* Add a way to return specific values or call the real function when presented with certain args
+* Add a way to manipulate the this pointer
+* Store the arguments and this pointer for each call to the mock
+* Add constructor mocking
+* Add a way to mock an object-function (a function that also has fields and methods)
