@@ -1,6 +1,6 @@
 Mok JS
 ===============
-Mok JS is the JavaScript mocking library that respects JavaScript as a language. It's currently for Node JS, but I have plans to modify it for browser use later.
+Mok JS is the JavaScript mocking library that loves JavaScript. It's currently for Node JS, but I have plans to modify it for browser use later.
 
 Creating a mock
 ====
@@ -56,7 +56,7 @@ To call the real method, just set callRealMethod to true:
 	var called = false;
 	var funcMock = function(){
 		called = true;
-	}
+	}.mok();
 	funcMock.callRealMethod = true;
 
 	funcMock(); //sets called to true
@@ -67,7 +67,7 @@ To do
 ====
 * Add a way to specify a return value
 * Add a way to return specific values or call the real function when presented with certain args
-* Add a way to manipulate the this pointer
+* Add a way to manipulate the this pointer for spies
 * Store the arguments and this pointer for each call to the mock
 * Add constructor mocking
 * Add a way to mock an object-function (a function that also has fields and methods)
