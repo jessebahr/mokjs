@@ -2,7 +2,7 @@ Mok JS is the JavaScript mocking library that respects JavaScript as a language.
 ===============
 Creating a mock
 ====
-'''javascript
+```javascript
 
 	function aFunc(){
 		...
@@ -23,12 +23,12 @@ Creating a mock
 	anObjectMock.field; // 1313 - copies fields
 	anObjectMock.func(); //anObject.func will not be called
 	anObjectMock.func.calls //1, the number of times it's been called
-'''
+```
 
 Attaching to Object and Function prototype
 ====
 Things get way easier if you just attach mok() to the prototypes.
-'''javascript
+```javascript
 	mok.attachToPrototype();
 
 	var funcMock = function(){
@@ -43,14 +43,14 @@ Things get way easier if you just attach mok() to the prototypes.
 		}
 	}.mok();
 	//objectMock is a mocked version of the object
-'''
+```
 
 The rest of this readme will assume that you did just that.
 
 Creating a spy / calling the real method
 ====
 To call the real method, just set callRealMethod to true:
-'''javascript
+```javascript
 	var called = false;
 	var funcMock = function(){
 		called = true;
@@ -59,4 +59,4 @@ To call the real method, just set callRealMethod to true:
 
 	funcMock(); //sets called to true
 	funcMock.calls; //still increments the number of calls like a regular mock
-'''
+```
