@@ -1,6 +1,3 @@
-var Verifier = require('./Verifier')
-
-
 function mockFunction(func){
 
 	var mocked = function(){
