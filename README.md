@@ -1,5 +1,7 @@
-Mok JS is the JavaScript mocking library that respects JavaScript as a language. It's currently for Node JS, but I have plans to modify it for browser use later.
+Mok JS
 ===============
+Mok JS is the JavaScript mocking library that respects JavaScript as a language. It's currently for Node JS, but I have plans to modify it for browser use later.
+
 Creating a mock
 ====
 ```javascript
