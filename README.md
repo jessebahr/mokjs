@@ -86,30 +86,46 @@ If there is an oncall and callRealFunction is true, the value or result of oncal
 Mockito to MokJS mapping
 ====
 Familiar with the Mockito style? No problem:
-<table>
-	<tr>
-		<th>Mockito</th>
-		<th>MokJS</th>
-	</tr>
-	<tr>
-		<td>when(mock).aMethod().thenReturn("some value");</td>
-		<td>mock.aMethod.oncall = 'some value'</td>
-	</tr>
-	<tr>
-		<td>when(mock).aMethod("this arg").thenReturn("another value")</td>
-		<td>Use the oncall function <pre>
+
+
+
+Mockito:
+```Java
+when(mock).aMethod().thenReturn("some value");</td>
+```
+MokJS:
+```javascript
+mock.aMethod.oncall = 'some value'
+```
+
+Mockito:
+```Java
+when(mock).aMethod("this arg").thenReturn("another value")
+```
+MokJS:
+Use the oncall function -
+```javascript
 mock.aMethod.oncall = function(arg){
 	if (arg === 'this arg')
-		return 'another value'
-}</pre></td>
-	</tr>
-	<tr>
-		<td>verify(mock).method()</td>
-		<td>assert(mock.method.calls, 1)</td>
-	</tr>
-	<tr>
-		<td>verify(mock).method('a value')</td>
-		<td>Again, use the oncall: ```javascript
+		return 'another value';
+}
+```
+Mockito:
+```Java
+verify(mock).method()
+```
+MokJS:
+```javascript
+assert(mock.method.calls, 1, 'method was called once')
+```
+
+Mockito:
+```Java
+verify(mock).method('a value')
+```
+MokJS:
+Again, use the oncall:
+```javascript
 var foundArg = 0;
 mock.method.oncall = function(arg){
 	if (arg === 'a value')
@@ -119,9 +135,8 @@ mock.method.oncall = function(arg){
 ...
 
 assert(foundArg, 1, 'method called with argument 1 time');
-```</td>
-	</tr>
-</table>
+
+```
 
 To do
 ====
