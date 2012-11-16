@@ -87,8 +87,6 @@ Mockito to MokJS mapping
 ====
 Familiar with the Mockito style? No problem:
 
-
-
 Mockito:
 ```Java
 when(mock).aMethod().thenReturn("some value");</td>
@@ -97,6 +95,8 @@ MokJS:
 ```javascript
 mock.aMethod.oncall = 'some value'
 ```
+
+-------------------------
 
 Mockito:
 ```Java
@@ -110,6 +110,9 @@ mock.aMethod.oncall = function(arg){
 		return 'another value';
 }
 ```
+
+-------------------------
+
 Mockito:
 ```Java
 verify(mock).method()
@@ -118,6 +121,8 @@ MokJS:
 ```javascript
 assert(mock.method.calls, 1, 'method was called once')
 ```
+
+-------------------------
 
 Mockito:
 ```Java
