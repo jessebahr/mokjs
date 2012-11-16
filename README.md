@@ -97,12 +97,11 @@ Familiar with the Mockito style? No problem:
 	</tr>
 	<tr>
 		<td>when(mock).aMethod("this arg").thenReturn("another value")</td>
-		<td>Use the oncall function - ```javascript
+		<td>Use the oncall function <pre>
 mock.aMethod.oncall = function(arg){
 	if (arg === 'this arg')
 		return 'another value'
-}
-```</td>
+}</pre></td>
 	</tr>
 	<tr>
 		<td>verify(mock).method()</td>
