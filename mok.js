@@ -1,21 +1,33 @@
-function mockFunction(func){
-
-	var mocked = function(){
-		arguments.callee.calls++;
-
-		//todo log the arguments
-		if (arguments.callee.callRealMethod)
-			return func.apply(this, arguments);
-
-		//todo have a way to return specific things for different args
-		if (typeof arguments.callee.returnValue !== 'undefined')
-			return arguments.callee.returnValue;
+function argsToArray(args){
+	//arguments object is not an actual array!
+	var result = [];
+	for (var i = 0; i < args.length; i++){
+		result[i] = args[i];
 	}
 
-	mocked.callRealMethod = false;
-	mocked.calls = 0;
+	return result;
+}
 
-	//todo function to tell if called with a certain argument(s)
+function mockFunction(func){
+	var mocked = function(){
+		arguments.callee.calls++;
+		var returnval;
+
+		//todo have a way to call a function but still return the real method return value - beforecall
+		if (arguments.callee.callRealFunction)
+			returnval = func.apply(this, argsToArray(arguments));
+
+		var oncall = arguments.callee.oncall;
+		if (typeof oncall === 'function')
+			returnval = oncall.apply(this, argsToArray(arguments));
+		else if (typeof oncall !== 'undefined')
+			returnval = oncall;
+
+		return returnval;
+	}
+
+	mocked.callRealFunction = false;
+	mocked.calls = 0;
 
 	return mocked;
 }

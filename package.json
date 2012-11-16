@@ -2,7 +2,7 @@
   "author": "Jesse Bahr",
   "name": "mokjs",
   "description": "A mocking library made by FOR JavaScript",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "git://github.com/jessebahr/mokjs.git"
@@ -10,7 +10,8 @@
   "main": "mok.js",
   "dependencies": {},
   "devDependencies": {
-	  "mocha": "1.7.x"
+	  "mocha": "1.7.x",
+	  "browserify": ">=1"
   },
   "optionalDependencies": {},
   "engines": {
@@ -18,6 +19,7 @@
   },
 
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha -R spec --recursive test/"
+    "test": "node_modules/mocha/bin/mocha -R spec --recursive test/",
+	"export": "mkdir -p exports; node node_modules/browserify/bin/cmd.js client/export.js -o exports/mok.js"
   }
 }
