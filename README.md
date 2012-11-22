@@ -83,6 +83,25 @@ If oncall is a function, that function will be called with the arguments and thi
 
 If there is an oncall and callRealFunction is true, the value or result of oncall overrides the return value of the real function.
 
+Mocking a constructor function
+====
+You can mock a constructor function by using the cmok function:
+```javascript
+function Const(){
+	this.afunc = function(){};
+};
+Const.prototype.pfunc = function(){};
+
+function MockConst = Const.cmok();
+var mock = new MockConst();
+```
+
+The mocked version of the constructor will create an object with mocked functions as its members. To get at these functions, use mprototype:
+```javascript
+MockConst.mprototype.afunc.calls //returns the number of calls the function has received from ALL instances created
+MockConst.mprototype.pfunc.oncall = function(){} //functions on the prototype are also mocked
+```
+
 Mockito to MokJS mapping
 ====
 Familiar with the Mockito style? No problem:
@@ -145,6 +164,7 @@ assert(foundArg, 1, 'method called with argument 1 time');
 
 To do
 ====
+* Count/track the number of instantiations of a mocked constructor
 * Add a way to call the real function from the oncall
-* Add constructor mocking
 * Add a way to mock an object-function (a function that also has fields and methods)
+* Add a when/then call chain? (Not needed, IMHO).

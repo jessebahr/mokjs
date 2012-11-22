@@ -2,12 +2,14 @@ var assert = require('assert');
 var mok = require('../mok');
 
 describe('mok', function () {
-	mok.attachToPrototype();
-
 	describe('attachToPrototype()', function(){
 		it('should attach to the correct prototypes', function(){
 			assert(function(){}.mok, 'function prototype should have mok()');
 			assert({}.mok, 'object prototype should have mok()');
+		});
+
+		it('attaches the constructor mock', function(){
+			assert(function(){}.cmok, 'function prototype should have cmok()');
 		})
 	})
 
@@ -132,6 +134,104 @@ describe('mok', function () {
 			mock.func();
 
 			assert.equal(that, mock, 'this should be the mocked item on function calls')
+		});
+	});
+
+	describe('mockConstructor()', function(){
+		function Const(){
+
+			this.field = 'Up and atom!';
+			this.funcCalled = 0;
+			this.func = function(){
+				this.funcCalled++;
+			}
+		}
+
+		Const.prototype.pfield = 'Up and at them!';
+		Const.prototype.pfuncCalled = 0;
+		Const.prototype.pfunc = function(){
+			this.pfuncCalled++;
+		};
+
+		it('reports the correct constructor', function(){
+			var Mock = Const.cmok();
+			var mock = new Mock;
+
+			assert.equal(mock.constructor, Const, 'mock should report the original constructor');
+		});
+
+		it('mocks prototype functions', function(){
+			var Mock = Const.cmok();
+			var mock = new Mock;
+
+			mock.pfunc();
+			assert.equal(mock.pfunc.calls, 1, 'prototyped functions should be mocked');
+			assert.equal(mock.pfuncCalled, 0, 'prototyped function should not be called');
+		});
+
+		it('copies prototype fields', function(){
+			var Mock = Const.cmok();
+			var mock = new Mock;
+
+			assert.equal(mock.pfield, Const.prototype.pfield, 'prototype field should be copied onto the mock');
+		});
+
+		it('copies non-prototype fields', function(){
+			var Mock = Const.cmok();
+			var mock = new Mock;
+
+			assert.equal(mock.field, 'Up and atom!', 'non-prototype field found');
+		});
+
+		it('mocks non-prototype functions', function(){
+			var Mock = Const.cmok();
+			var mock = new Mock;
+
+			mock.func();
+			assert.equal(mock.funcCalled, 0, 'mock function should not be called');
+			assert.equal(mock.func.calls, 1, 'mock should be called once');
+		});
+
+		it('calls the constructor with the right arguments', function(){
+			var theArg = 'Mcbain to base, under attack by commie-nazis';
+			function TheConst(arg){
+				if (arg === theArg)
+					this.foundIt = true;
+			}
+			var Mock = TheConst.cmok(theArg);
+			var mock = new Mock;
+
+			assert(mock.foundIt, 'the argument needs to be passed correctly');
+		});
+
+		it('only puts non-prototype fields on the object', function(){
+			var Mock = Const.cmok();
+			var mock = new Mock;
+
+			assert(mock.hasOwnProperty('field'), 'mock should the property');
+			assert(!mock.hasOwnProperty('pfield'), 'mock should not the prototype property');
+		});
+
+		it('puts prototype functions on mprototype', function(){
+			var Mock = Const.cmok();
+
+			assert.equal(typeof Mock.mprototype.pfunc, 'function', 'On the mprototype, pfunc is a function');
+
+			Mock.mprototype.pfunc.oncall = 12345;
+			var mock = new Mock;
+
+			assert.equal(mock.pfunc(), 12345, 'pfunc returns the right thing because it is a mock');
+		});
+
+		it('puts non-proto functions on mprototype', function(){
+			var Mock = Const.cmok();
+
+			assert.equal(typeof Mock.mprototype.func, 'function', 'On the mprototype, func is a function');
+
+			Mock.mprototype.func.oncall = 54321;
+			var mock = new Mock;
+
+			assert.equal(mock.func(), 54321, 'func returns the right thing because it is a mock');
 		});
 	});
 });
