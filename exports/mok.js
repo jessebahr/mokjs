@@ -394,15 +394,98 @@ process.binding = function (name) {
 require.define("/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"mok.js"}
 });
 
-require.define("/mok.js",function(require,module,exports,__dirname,__filename,process,global){function argsToArray(args){
-	//arguments object is not an actual array!
-	var result = [];
-	for (var i = 0; i < args.length; i++){
-		result[i] = args[i];
+require.define("/mok.js",function(require,module,exports,__dirname,__filename,process,global){var mokFunction = 	 require('./mokFunction');
+var mokObject =		 require('./mokObject');
+var mokConstructor = require('./mokConstructor')
+var util = 			 require('./util');
+
+
+
+
+
+
+function mockConstructor(con){
+	var nonProtoThings = {}, key;
+
+	function mockCon(){
+		for (key in nonProtoThings){
+			this[key] = nonProtoThings[key];
+		}
+
+		this.constructor = con;
 	}
 
-	return result;
+	/**
+	 * mprototype contains all the fields that a new instance will have. This allows access to the mock functions.
+	 * @type {Object}
+	 */
+	mockCon.mprototype = {};
+
+	mockCon.prototype = mokObject.mock(con.prototype);
+
+
+	//mock prototype fields
+	for (key in mockCon.prototype)
+		mockCon.mprototype[key] = mockCon.prototype[key];
+
+	var args = util.argsToArray(arguments).slice(1);
+	con.apply(nonProtoThings, args); //Fake an instantiation with nonProtoThings being the "this".
+
+	for (key in nonProtoThings){
+		nonProtoThings[key] = mokObject.mockField(nonProtoThings[key]);
+		mockCon.mprototype[key] = nonProtoThings[key];
+	}
+
+	return mockCon;
 }
+
+function mok(v){
+	if (typeof v === 'object')
+		return mokObject.mock(v);
+	return mokFunction.mock(v);
+}
+
+
+/**
+ * mock an object, returning an object with all fields shallow-copied, and all functions mocked.
+ */
+mok.obj = mokObject.mock;
+
+/**
+ * mock a function, returning a mocked version of the function.
+ */
+mok.func = mokFunction.mock;
+
+/**
+ * mock a constructor, returning a mock-constructor which creates a mock when instantiated
+ */
+mok.construct = mockConstructor;
+
+/* attach methods to the Function and Object prototypes that create mocks.
+ * This way, you'll be able to do something like:
+ * var mockAlert = alert.mok();
+ * someFunction();
+ * assert(mockAlert.called === 1);
+ */
+Function.prototype.mok = Object.prototype.mok = function(){
+	return mok(this);
+}
+
+Function.prototype.cmok = function(){
+	var args = util.argsToArray(arguments)
+	args.unshift(this);
+
+	return mok.construct.apply(this, args);
+}
+
+
+
+module.exports = mok;
+});
+
+require.define("/mokFunction.js",function(require,module,exports,__dirname,__filename,process,global){//function-related mocks
+var util = require('./util');
+
 
 function mockFunction(func){
 	var mocked = function(){
@@ -411,11 +494,11 @@ function mockFunction(func){
 
 		//todo have a way to call a function but still return the real method return value - beforecall
 		if (arguments.callee.callRealFunction)
-			returnval = func.apply(this, argsToArray(arguments));
+			returnval = func.apply(this, util.argsToArray(arguments));
 
 		var oncall = arguments.callee.oncall;
 		if (typeof oncall === 'function')
-			returnval = oncall.apply(this, argsToArray(arguments));
+			returnval = oncall.apply(this, util.argsToArray(arguments));
 		else if (typeof oncall !== 'undefined')
 			returnval = oncall;
 
@@ -428,44 +511,105 @@ function mockFunction(func){
 	return mocked;
 }
 
+
+
+module.exports = {
+	mock: mockFunction
+}
+});
+
+require.define("/util.js",function(require,module,exports,__dirname,__filename,process,global){
+
+module.exports = {
+	/**
+	 * convert an arguments object to an array (for use in function.call())
+	 * @param args an arguments object, like the one you get out of a function call.
+	 * @return {Array}
+	 */
+	argsToArray: function(args){
+		//arguments object is not an actual array!
+		var result = [];
+		for (var i = 0; i < args.length; i++){
+			result[i] = args[i];
+		}
+
+		return result;
+	}
+}
+});
+
+require.define("/mokObject.js",function(require,module,exports,__dirname,__filename,process,global){var mokFunction = require('./mokFunction');
+
+/**
+ * mock a field of an object. If the field is a function, mock it. Otherwise, just return it.
+ *
+ * @param member
+ * @return a mock of member if member is a function, or just member otherwise.
+ */
+function mockField(member){
+	if (typeof member === 'function')
+		return mokFunction.mock(member);
+	else
+		return member;
+}
+
+
 function mockObject(obj){
 	var result = {}
 	for (var key in obj){
-		var member = obj[key]
-		if (typeof member === 'function')
-			result[key] = mockFunction(member);
-		else
-			result[key] = member;
+		result[key] = mockField(obj[key]);
+
 	}
 
 	return result;
 }
 
-//todo function mockConstructor(const)
-
-function mok(v){
-	if (typeof v === 'object')
-		return mockObject(v)
-	return mockFunction(v)
+module.exports = {
+	mock: mockObject,
+	mockField: mockField
 }
+});
 
-mok.obj = mockObject;
-mok.func = mockFunction;
+require.define("/mokConstructor.js",function(require,module,exports,__dirname,__filename,process,global){//constructor-specific mocks
 
-/* optionally attach methods to the Function and Object prototypes that create mocks.
- * This way, you'll be able to do something like:
- * var mockAlert = alert.mok();
- * someFunction();
- * assert(mockAlert.called === 1);
- */
-mok.attachToPrototype = function(){
-	Function.prototype.mok = Object.prototype.mok = function(){
-		return mok(this);
+var mokObject = require('./mokObject');
+
+module.exports = {
+	mock: function(){
+		var nonProtoThings = {}, key;
+
+		function mockCon(){
+			for (key in nonProtoThings){
+				this[key] = nonProtoThings[key];
+			}
+
+			this.constructor = con;
+		}
+
+		/**
+		 * mprototype contains all the fields that a new instance will have. This allows access to the mock functions.
+		 * @type {Object}
+		 */
+		mockCon.mprototype = {};
+
+		mockCon.prototype = mokObject.mock(con.prototype);
+
+
+		//mock prototype fields
+		for (key in mockCon.prototype)
+			mockCon.mprototype[key] = mockCon.prototype[key];
+
+		var args = util.argsToArray(arguments).slice(1);
+		con.apply(nonProtoThings, args); //Fake an instantiation with nonProtoThings being the "this".
+
+		for (key in nonProtoThings){
+			nonProtoThings[key] = mokObject.mockField(nonProtoThings[key]);
+			mockCon.mprototype[key] = nonProtoThings[key];
+		}
+
+		return mockCon;
 	}
 }
-
-
-module.exports = mok;
 });
 
 require.define("/client/export.js",function(require,module,exports,__dirname,__filename,process,global){//exports for a client-side use of mok
